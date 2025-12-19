@@ -8,6 +8,9 @@ This is a Joget DX8 API plugin for creating forms programmatically via REST API.
 
 **Package:** `global.govstack.formcreator`
 **Version:** 8.1-SNAPSHOT
+**Repository:** https://github.com/aarelaponin/joget-form-creator-api
+
+**Companion Tool:** [joget-form-generator](https://github.com/aarelaponin/joget-form-generator) - Python utility for generating form definition JSON files.
 
 ## Build Commands
 
@@ -30,33 +33,46 @@ Upload the built JAR through Joget's Manage Plugins interface (Settings > Manage
 
 This is a Joget API Plugin (extends `ApiPluginAbstract`) following the OSGi bundle pattern:
 
-- **Entry Point:** `FormCreatorServiceProvider` - Handles HTTP requests at `/jw/api/formcreator/forms`
-- **Business Logic:** `FormCreationService` - Orchestrates form, API endpoint, and CRUD creation
-- **Models:** `FormCreationRequest`/`FormCreationResponse` - Request/response DTOs
-- **Exceptions:** Custom exception hierarchy (`ApiProcessingException`, `ValidationException`, `FormCreationException`)
-- **Constants:** `ApiConstants` - Central location for all constants, bean names, error messages
+### Entry Points
+- **`FormCreatorServiceProvider`** - API plugin handling HTTP requests at `/jw/api/formcreator/forms`
 
-Request flow:
+### Services
+- **`FormCreationService`** - Main orchestrator for form creation workflow
+- **`FormDatabaseService`** - Direct database form registration with cache invalidation
+- **`ApiBuilderService`** - Creates API endpoints via BuilderDefinitionDao
+- **`CrudService`** - Coordinates datalist + userview creation
+- **`DatalistService`** - Creates datalist definitions (file + database)
+- **`UserviewService`** - Creates/updates userview definitions (file + database)
+- **`JsonProcessingService`** - Generates JSON for forms, datalists, userviews, APIs
+- **`FormCreatorBootstrapService`** - Self-bootstrapping capability
+
+### Models
+- `FormCreationRequest` / `FormCreationResponse` - Request/response DTOs
+- `ApiCreationResult`, `CrudCreationResult`, `InternalFormCreationResult` - Result objects
+
+### Utilities
+- `RequestParserUtil` - JSON request parsing
+- `MultipartRequestParser` - File upload handling
+- `UserContextUtil` - System user context execution
+- `ErrorResponseUtil` - Standardized error responses
+
+### Request Flow
 1. `FormCreatorServiceProvider.createForm()` receives HTTP POST
 2. `UserContextUtil.executeAsSystemUser()` sets admin context
 3. `RequestParserUtil` parses JSON or multipart request into `FormCreationRequest`
-4. `FormCreationService.processFormCreationRequest()` validates and creates form
+4. `FormCreationService.processFormCreationRequest()` validates and orchestrates:
+   - Bootstrap check (ensures formCreator CRUD exists)
+   - Form creation via `FormDatabaseService`
+   - Optional API endpoint via `ApiBuilderService`
+   - Optional CRUD interface via `CrudService`
 
 ## Key Implementation Notes
 
 - Supports both `application/json` and `multipart/form-data` content types
-- Uses Joget's `AppService`, `FormService` beans for form operations
+- Uses Joget's `AppService`, `FormService`, `FormDataDao` beans
 - Form definition is expected as a JSON string representing Joget form structure
 - Optional flags `createApiEndpoint` and `createCrud` trigger additional component creation
-
-## Current Development Status
-
-The plugin infrastructure is complete. Form creation services are stubbed with TODO markers at:
-- `FormCreationService.java:280` - Form definition creation
-- `FormCreationService.java:342` - API endpoint creation
-- `FormCreationService.java:370` - CRUD interface creation
-
-These need integration with services from the sibling `form-creator` plugin located at `../form-creator/`.
+- All services use dual storage pattern (file system + database) for Joget compatibility
 
 ## Testing
 

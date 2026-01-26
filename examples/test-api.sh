@@ -21,9 +21,9 @@ echo ""
 # Test 1: Simple Form Creation
 echo -e "${YELLOW}Test 1: Creating Simple Form${NC}"
 echo "--------------------------------------"
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/forms" \
-  -H "api_id: $API_ID" \
-  -H "api_key: $API_KEY" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/formcreator/forms" \
+  -H "api-id: $API_ID" \
+  -H "api-key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d @simple-form-request.json)
 
@@ -42,9 +42,9 @@ echo ""
 # Test 2: Complete Form with API and CRUD
 echo -e "${YELLOW}Test 2: Creating Form with API and CRUD${NC}"
 echo "--------------------------------------"
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/forms" \
-  -H "api_id: $API_ID" \
-  -H "api_key: $API_KEY" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/formcreator/forms" \
+  -H "api-id: $API_ID" \
+  -H "api-key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d @complete-form-request.json)
 
@@ -63,9 +63,9 @@ echo ""
 # Test 3: Invalid Request (Missing Required Field)
 echo -e "${YELLOW}Test 3: Testing Validation (Missing formId)${NC}"
 echo "--------------------------------------"
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/forms" \
-  -H "api_id: $API_ID" \
-  -H "api_key: $API_KEY" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/formcreator/forms" \
+  -H "api-id: $API_ID" \
+  -H "api-key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "formName": "Invalid Form",
@@ -88,9 +88,9 @@ echo ""
 # Test 4: Invalid JSON
 echo -e "${YELLOW}Test 4: Testing Invalid JSON${NC}"
 echo "--------------------------------------"
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/forms" \
-  -H "api_id: $API_ID" \
-  -H "api_key: $API_KEY" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$JOGET_URL/jw/api/formcreator/formcreator/forms" \
+  -H "api-id: $API_ID" \
+  -H "api-key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d 'INVALID JSON')
 

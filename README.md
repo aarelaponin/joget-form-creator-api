@@ -36,17 +36,28 @@ Upload the JAR via Joget UI: **Settings → Manage Plugins → Upload Plugin**
 ### 3. Use
 
 ```bash
-curl -X POST http://localhost:8080/jw/api/formcreator/forms \
-  -H "api_id: YOUR_API_ID" \
-  -H "api_key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
+curl -X POST 'http://localhost:8080/jw/api/formcreator/formcreator/forms' \
+  -H 'accept: application/json' \
+  -H 'api-id: YOUR_API_ID' \
+  -H 'api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
   -d '{
     "formId": "contact_form",
     "formName": "Contact Form",
     "tableName": "contact",
-    "formDefinition": "{\"className\":\"org.joget.apps.form.model.Form\",\"properties\":{\"id\":\"contact_form\",\"name\":\"Contact Form\",\"tableName\":\"contact\"},\"elements\":[...]}",
+    "targetAppId": "myApp",
+    "targetAppVersion": "1",
     "createApiEndpoint": true,
-    "createCrud": true
+    "createCrud": true,
+    "formDefinition": {
+      "className": "org.joget.apps.form.model.Form",
+      "properties": {
+        "id": "contact_form",
+        "name": "Contact Form",
+        "tableName": "contact"
+      },
+      "elements": []
+    }
   }'
 ```
 
@@ -66,13 +77,13 @@ curl -X POST http://localhost:8080/jw/api/formcreator/forms \
 
 ### Create Form
 
-**Endpoint:** `POST /jw/api/formcreator/forms`
+**Endpoint:** `POST /jw/api/formcreator/formcreator/forms`
 
 **Headers:**
 ```
 Content-Type: application/json
-api_id: <your_api_id>
-api_key: <your_api_key>
+api-id: <your_api_id>
+api-key: <your_api_key>
 ```
 
 **Request Body:**
@@ -82,7 +93,7 @@ api_key: <your_api_key>
 | `formId` | string | Yes | Unique form identifier |
 | `formName` | string | Yes | Display name |
 | `tableName` | string | Yes | Database table name (without `app_fd_` prefix) |
-| `formDefinition` | string | Yes | Form JSON definition |
+| `formDefinition` | object | Yes | Form JSON definition (as JSON object, not string) |
 | `targetAppId` | string | No | Target application ID |
 | `targetAppVersion` | string | No | Target application version |
 | `createApiEndpoint` | boolean | No | Create REST API for the form (default: false) |
@@ -98,26 +109,24 @@ api_key: <your_api_key>
 | 404 | Target application not found |
 | 500 | Server error |
 
-### Multipart Upload
+## Known Limitations
 
-Also supports `multipart/form-data` for file uploads:
+### Multipart/Form-Data Not Supported
 
-```bash
-curl -X POST http://localhost:8080/jw/api/formcreator/forms \
-  -H "api_id: YOUR_API_ID" \
-  -H "api_key: YOUR_API_KEY" \
-  -F "formId=contact_form" \
-  -F "formName=Contact Form" \
-  -F "tableName=contact" \
-  -F "formDefinitionFile=@my-form.json" \
-  -F "createApiEndpoint=true" \
-  -F "createCrud=true"
-```
+Due to Joget platform limitations, `multipart/form-data` requests are not supported.
+The Joget API framework returns 400 Bad Request before reaching the plugin code.
+
+**Workaround:** Use JSON requests with `formDefinition` as an embedded JSON object.
+
+### Database Compatibility
+
+The plugin uses Joget's FormDefinitionDao API, ensuring compatibility with all databases
+supported by Joget (MySQL, PostgreSQL, Oracle, SQL Server, MariaDB).
 
 ## Architecture
 
 ```
-HTTP POST /jw/api/formcreator/forms
+HTTP POST /jw/api/formcreator/formcreator/forms
          │
          ▼
 ┌─────────────────────────────────┐

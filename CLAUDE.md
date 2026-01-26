@@ -34,7 +34,7 @@ Upload the built JAR through Joget's Manage Plugins interface (Settings > Manage
 This is a Joget API Plugin (extends `ApiPluginAbstract`) following the OSGi bundle pattern:
 
 ### Entry Points
-- **`FormCreatorServiceProvider`** - API plugin handling HTTP requests at `/jw/api/formcreator/forms`
+- **`FormCreatorServiceProvider`** - API plugin handling HTTP requests at `/jw/api/formcreator/formcreator/forms`
 
 ### Services
 - **`FormCreationService`** - Main orchestrator for form creation workflow
@@ -68,9 +68,9 @@ This is a Joget API Plugin (extends `ApiPluginAbstract`) following the OSGi bund
 
 ## Key Implementation Notes
 
-- Supports both `application/json` and `multipart/form-data` content types
+- Only `application/json` content type is supported (multipart/form-data fails due to Joget platform limitations)
 - Uses Joget's `AppService`, `FormService`, `FormDataDao` beans
-- Form definition is expected as a JSON string representing Joget form structure
+- Form definition is expected as a JSON object (not a string) in the request body
 - Optional flags `createApiEndpoint` and `createCrud` trigger additional component creation
 - All services use dual storage pattern (file system + database) for Joget compatibility
 
@@ -81,9 +81,9 @@ This is a Joget API Plugin (extends `ApiPluginAbstract`) following the OSGi bund
 cd examples && ./test-api.sh
 
 # Manual curl test
-curl -X POST http://localhost:8080/jw/api/formcreator/forms \
-  -H "api_id: YOUR_API_ID" \
-  -H "api_key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
+curl -X POST 'http://localhost:8080/jw/api/formcreator/formcreator/forms' \
+  -H 'api-id: YOUR_API_ID' \
+  -H 'api-key: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
   -d @examples/simple-form-request.json
 ```
